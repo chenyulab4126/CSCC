@@ -7,6 +7,7 @@ Data analysis of pulmonary fibrosis project in collaboration with Drs Yu Chen La
 People parcipated in the analysis:
 
 Jiejie Liu
+
 Xing Liu
 
 ## Organization
