@@ -1,0 +1,251 @@
+import matplotlib as mpl
+import scanpy as sc
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+import anndata as ad
+import squidpy as sq
+import warnings
+
+mpl.rcParams['pdf.fonttype'] = 42
+mpl.rcParams["font.sans-serif"] = "Arial"
+warnings.filterwarnings('ignore')
+
+sc.settings.set_figure_params(dpi=100, dpi_save=600, facecolor='white')
+%config InlineBackend.figure_format = 'retina'
+
+import os
+os.getcwd()
+
+adataD1 = sc.read_h5ad('../data/SS200000823TR_D1_bin50_sp.h5ad')
+adataD2 = sc.read_h5ad('../data/SS200000823TR_D2_bin50_sp.h5ad')
+adataD3 = sc.read_h5ad('../data/SS200000823TR_D3_bin50_sp.h5ad')
+cell_type = 'Endothelial cell'
+adatas = {'adataD1': adataD1, 'adataD2': adataD2, 'adataD3': adataD3}
+filtered_adatas = {}
+
+for adata_name, adata in adatas.items():
+    filtered_adata = adata[adata.obs['cell2loc_anno'] == cell_type].copy()
+    filtered_adatas[f'{adata_name}_endo_filter'] = filtered_adata
+
+adataD1_endo_filter = filtered_adatas['adataD1_endo_filter']
+adataD2_endo_filter = filtered_adatas['adataD2_endo_filter']
+adataD3_endo_filter = filtered_adatas['adataD3_endo_filter']
+
+cell_type = ['DC cell','Macrophages','Endothelial cell','NK cell','T cell']
+adatas = {'adataD2': adataD2, 'adataD3': adataD3}
+filtered_adatas = {}
+
+for adata_name, adata in adatas.items():
+    filtered_adata = adata[adata.obs['cell2loc_anno'].isin(cell_type)].copy()
+    filtered_adatas[f'{adata_name}_cd74_filter'] = filtered_adata
+
+adataD2_cd74_filter = filtered_adatas['adataD2_cd74_filter']
+adataD3_cd74_filter = filtered_adatas['adataD3_cd74_filter']
+
+
+fig, ax = plt.subplots(figsize=(8, 6))
+sc.pl.spatial(adataD3, color='cell2loc_anno', img=None, size=50, spot_size=1.5, ax=ax)
+legend = ax.legend(prop={'size': 12}, bbox_to_anchor=(1.2, 0.9),loc='upper center',frameon=False)
+
+import matplotlib.pyplot as plt
+import matplotlib.font_manager as font_manager
+
+
+font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"  
+font_prop = font_manager.FontProperties(fname=font_path)
+plt.rcParams['font.family'] = font_prop.get_name()
+
+cell_types = adataD3.obs['cell2loc_anno']
+
+cell_type_colors = ['#1f77b4', '#ff7f0e', '#279e68', '#d62728', '#aa40fc', '#8c564b',
+                   '#e377c2', '#b5bd61', '#17becf', '#aec7e8', '#ffbb78']
+cell_type_mapping = adataD3.obs['cell2loc_anno'].cat.categories
+color_mapping = dict(zip(cell_type_mapping, cell_type_colors))
+
+cell_type_counts = cell_types.value_counts()
+
+cell_type_proportions = cell_types.value_counts(normalize=True)
+
+cell_type_df = pd.DataFrame({'Cell Type': cell_type_counts.index, 'Count': cell_type_counts.values, 'Proportion': cell_type_proportions.values})
+
+cell_type_df = cell_type_df.sort_values(by='Count', ascending=False)
+
+fig, ax = plt.subplots(figsize=(10, 7))
+bars = ax.bar(cell_type_df['Cell Type'], cell_type_df['Count'], color=[color_mapping.get(cell_type, 'gray') for cell_type in cell_type_df['Cell Type']])
+
+
+#for bar, proportion in zip(bars, cell_type_df['Proportion']):
+#    if proportion >= 0.9:
+#        ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() - 5, f'{proportion:.2%}', ha='center', va='bottom')
+#    else:
+#        ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height(), f'{proportion:.2%}', ha='center', va='bottom')
+#
+
+ax.grid(False)
+
+ax.set_xlabel('Cell Type')
+ax.set_ylabel('Count')
+ax.set_title('Cell Type Counts')
+ax.set_xticklabels(cell_type_df['Cell Type'], rotation=90)
+
+plt.tight_layout()
+plt.show()
+fig.savefig('Leading_edge_cell_type_counts_pro.pdf', bbox_inches='tight')
+
+
+merged_genes = set()
+for genes in pathway_data.values():
+    merged_genes.update(genes)
+
+len(merged_genes)
+
+sc.tl.score_genes(adataD2_cancer_filter, Oxidative_phosphorylation, score_name='Oxidative phosphorylation')
+sc.tl.score_genes(adataD3_cancer_filter, Oxidative_phosphorylation, score_name='Oxidative phosphorylation')
+sc.tl.score_genes(adataD2_cancer_filter, hypxia, score_name='Response to hypxia')
+sc.tl.score_genes(adataD3_cancer_filter, hypxia, score_name='Response to hypxia')
+sc.tl.score_genes(adataD2_cancer_filter, lactic, score_name='Lactate metabolic process')
+sc.tl.score_genes(adataD3_cancer_filter, lactic, score_name='Lactate metabolic process')
+sc.tl.score_genes(adataD2_cancer_filter, glycolysis, score_name='Glycolytic process')
+sc.tl.score_genes(adataD3_cancer_filter, glycolysis, score_name='Glycolytic process')
+sc.tl.score_genes(adataD2_cancer_filter, lipid, score_name='Lipid metabolism')
+sc.tl.score_genes(adataD3_cancer_filter, lipid, score_name='Lipid metabolism')
+sc.tl.score_genes(adataD2_cancer_filter, pentose_phosphate, score_name='Pentose phosphate pathway')
+sc.tl.score_genes(adataD3_cancer_filter, pentose_phosphate, score_name='Pentose phosphate pathway')
+
+fig, ax = plt.subplots(figsize=(8,6))
+import matplotlib.pyplot as plt
+
+cmap = plt.cm.Greys_r
+color_map = plt.cm.Reds
+
+sc.pl.spatial(adataD3_cancer_filter, cmap=color_map, colorbar_loc=None,img=None, size=50, spot_size=1.5, bw=False, color=['Oxidative phosphorylation'], groups=["Cancer cell"], show=False, ax=ax, vmin=0, vmax=0.06)
+
+im = ax.imshow([[0, 1]], cmap=color_map, vmin=0, vmax=0.06)
+ax.axis('off')
+cbar_ax = fig.add_axes([0.15, 0.9, 0.08, 0.04])
+cbar = fig.colorbar(im, cax=cbar_ax, orientation='horizontal')
+fig.savefig('D3_Oxidative_phosphorylation_score.pdf', bbox_inches='tight')
+fig.savefig('D3_Oxidative_phosphorylation_score.tif', dpi=600, bbox_inches='tight')
+
+plt.show()
+
+def print_used_genes(adata, pathway_genes, pathway_name):
+    genes_used = adata.var_names.intersection(set(pathway_genes))
+    print(f"Genes used in pathway '{pathway_name}': {genes_used}")
+
+for pathway_name, pathway_genes in pathway_data.items():
+    print_used_genes(adataD2_cancer_filter, globals()[pathway_name], pathway_name)
+
+for pathway_name, pathway_genes in pathway_data.items():
+    print_used_genes(adataD3_cancer_filter, globals()[pathway_name], pathway_name)
+
+
+fig, ax = plt.subplots(figsize=(8,6))
+cmap = plt.cm.Greys_r 
+color_map = plt.cm.Reds
+
+sc.pl.spatial(adataD2_cancer_filter, cmap='viridis',legend_fontsize='xx-small', 
+              colorbar_loc='right',img=None, size=80, 
+              spot_size=3, bw=False, 
+              color=['Metabolic pathway'],
+              groups=["Cancer cell"], 
+              show=True, ax=ax, vmin=0, vmax=0.04)
+
+# im = ax.imshow([[0, 1]], cmap=color_map, vmin=0, vmax=0.06)
+# ax.axis('off')  
+# cbar_ax = fig.add_axes([0.15, 0.9, 0.08, 0.04]) 
+# cbar = fig.colorbar(im, cax=cbar_ax, orientation='horizontal')
+# fig.savefig('D2_Oxidative_phosphorylation_score.pdf', bbox_inches='tight')
+fig.savefig('D2_all_Metabolic_pathway_score.pdf', dpi=600, bbox_inches='tight')
+plt.show()
+
+fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(16,6))
+sc.pl.spatial(adataD2_cancer_filter,colorbar_loc=None,img=None, size=80, spot_size=2,ax=axes[0], bw=False, color=['Metabolic pathway'],
+              groups=["Cancer cell"], cmap='viridis', show=False, vmin=0, vmax=0.04, crop_coord=[3000,11000,3500,12000])
+
+sc.pl.spatial(adataD2_cancer_filter,colorbar_loc=None,img=None, size=80, spot_size=2,ax=axes[1], bw=False, color=['Metabolic pathway'],
+              groups=["Cancer cell"], cmap='viridis', show=False, vmin=0, vmax=0.04, crop_coord=[13000,21000,3500,12000])
+
+sc.pl.spatial(adataD2_cancer_filter,colorbar_loc=None,img=None, size=80, spot_size=2,ax=axes[2], bw=False, color=['Metabolic pathway'],
+              groups=["Cancer cell"], cmap='viridis', show=False, vmin=0, vmax=0.04, crop_coord=[8500,16500,13000,21525])
+plt.subplots_adjust(wspace=.3)
+fig.savefig('D2_Metabolic_pathway_score.pdf', dpi=600, bbox_inches='tight')
+
+
+# leading edge roomin 2 regions
+fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(10,4))
+sc.pl.spatial(adataD3_cancer_filter,colorbar_loc=None,img=None, size=80, spot_size=2,ax=axes[0], bw=False, color=['Metabolic pathway'],
+              groups=["Cancer cell"], cmap='viridis', show=False, vmin=0, vmax=0.04,  crop_coord=[13000,19600,3000,14000])
+
+sc.pl.spatial(adataD3_cancer_filter,colorbar_loc=None,img=None, size=80, spot_size=2,ax=axes[1], bw=False, color=['Metabolic pathway'],
+              groups=["Cancer cell"], cmap='viridis', show=False, vmin=0, vmax=0.04, crop_coord=[6000,12600,3000,14000])
+plt.subplots_adjust(wspace=.3)
+fig.savefig('D3_Metabolic_pathway_score.pdf', dpi=600, bbox_inches='tight')
+
+fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(16,6))
+
+sc.pl.spatial(adataD2, color='cell2loc_anno', img=None, size=50, spot_size=1.5,ax=axes[0],show=False, 
+              groups=["Cancer cell"], crop_coord=[3000,11000,3500,12000]) 
+sc.pl.spatial(adataD2_cancer_filter,colorbar_loc=None,img=None, size=50, ax=axes[1], spot_size=1.5, bw=False, color=['Response to hypxia'],
+              groups=["Cancer cell"], cmap=color_map, show=False, vmin=0, vmax=0.06, crop_coord=[3000,11000,3500,12000])
+plt.subplots_adjust(wspace=.3)
+plt.savefig('Tumorcore_high_cancercell_roomin_1101.pdf')
+
+fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(16,6))
+
+sc.pl.spatial(adataD2, color='cell2loc_anno', img=None, size=50, spot_size=1.5,ax=axes[0],show=False, 
+              groups=['Cancer cell'], crop_coord=[8500,16500,13000,21525]) 
+sc.pl.spatial(adataD2_cancer_filter, cmap=color_map, colorbar_loc=None,img=None, size=50, ax=axes[1], spot_size=1.5, bw=False, color=['Response to hypxia'],
+              groups=["Cancer cell"], show=False, vmin=0, vmax=0.06, crop_coord=[8500,16500,13000,21525])
+plt.subplots_adjust(wspace=.3)
+plt.savefig('Tumorcore__cancercell_low_roomin_1101.pdf')
+
+metabolic_scores = {
+    'Tumor core1': adataD2_high.obs['Metabolic pathway'],  
+    'Tumor core3': adataD2_middle.obs['Metabolic pathway'],  
+    'Tumor core2': adataD2_low.obs['Metabolic pathway'],
+    'Leading edge2': adataD3_high.obs['Metabolic pathway'],
+    'Leading edge1': adataD3_low.obs['Metabolic pathway']
+}
+
+
+df = pd.DataFrame(metabolic_scores)
+quantiles = {}
+medians = {}
+for region, scores in metabolic_scores.items():
+    quantiles[region] = scores.quantile([0.25, 0.75])
+    medians[region] = scores.median()
+region_medians = {region: np.median(scores) for region, scores in metabolic_scores.items()}
+overall_median = np.median(np.concatenate(list(metabolic_scores.values())))
+high_metabolism_regions = [region for region, median in region_medians.items() if median > overall_median]
+low_metabolism_regions = [region for region, median in region_medians.items() if median <= overall_median]
+
+print("HIGH:", high_metabolism_regions)
+print("LOW:", low_metabolism_regions)
+
+metabolic_scores = {
+    'Tumor core1': adataD2_high.obs['Metabolic pathway'],  
+    'Tumor core2': adataD2_middle.obs['Metabolic pathway'],  
+    'Tumor core3': adataD2_low.obs['Metabolic pathway'],
+    'Leading edge2': adataD3_high.obs['Metabolic pathway'],
+    'Leading edge1': adataD3_low.obs['Metabolic pathway']
+}
+
+df = pd.DataFrame(metabolic_scores)
+
+medians = df.median()
+sorted_regions = medians.sort_values().index
+plt.figure(figsize=(6, 6))
+medians[sorted_regions].plot(marker='o', color='b', linestyle='-')
+overall_median = np.median(np.concatenate(list(metabolic_scores.values())))
+plt.axhline(y=overall_median, color='r', linestyle='--', alpha=0.6, label='Overall Median')
+
+plt.title('Median Metabolic Pathway Scores')
+plt.xlabel('Spatial Regions')
+plt.ylabel('Median Metabolic Pathway Score')
+plt.xticks(np.arange(len(sorted_regions)), sorted_regions, rotation=45)
+plt.tight_layout()
+plt.savefig('median_metabolic_pathway_scores.pdf', bbox_inches='tight', pad_inches=0.1)
+
